@@ -1,10 +1,12 @@
 package client.albumCoponents;
 
+import server.Book;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import server.Book;
+import java.io.File;
 
 public class CreateABook extends JFrame {
 
@@ -38,6 +40,14 @@ public class CreateABook extends JFrame {
         JLabel coverLabel = new JLabel("Cover:");
         bookCoverField = new JTextField(20);
 
+        JButton browseButton = new JButton("Browse");
+        browseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                selectFile();
+            }
+        });
+
         JLabel authorLabel = new JLabel("Author:");
         bookAuthorField = new JTextField(20);
 
@@ -47,7 +57,7 @@ public class CreateABook extends JFrame {
         // Add components to the Book Creation tab
         bookCreationPanel.add(createPaddedPanel(title));
         bookCreationPanel.add(createFieldPanel(titleLabel, bookTitleField));
-        bookCreationPanel.add(createFieldPanel(coverLabel, bookCoverField));
+        bookCreationPanel.add(createFieldPanel(coverLabel, browseButton));
         bookCreationPanel.add(createFieldPanel(authorLabel, bookAuthorField));
         bookCreationPanel.add(createFieldPanel(descriptionLabel, bookDescriptionField));
 
@@ -64,6 +74,15 @@ public class CreateABook extends JFrame {
         bookCreationPanel.add(submitPanel);
     }
 
+    private void selectFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            bookCoverField.setText(selectedFile.getAbsolutePath());
+        }
+    }
+
     private void createBook() {
         String title = bookTitleField.getText();
         String cover = bookCoverField.getText();
@@ -74,7 +93,7 @@ public class CreateABook extends JFrame {
         // You can add further logic to save the book information or perform other actions
     }
 
-    private JPanel createFieldPanel(JLabel label, JComponent component) {
+    private <C extends  Component> JPanel createFieldPanel(JLabel label, C component) {
         JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout(FlowLayout.LEFT));
         panel.add(label);
