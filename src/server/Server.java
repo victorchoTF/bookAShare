@@ -1,15 +1,21 @@
 package server;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Server {
-    private ArrayList<User> users;
-    private ArrayList<Book> books;
+    private final ArrayList<User> users;
+    private final ArrayList<Book> books;
     private User loggedInUser;
 
     public Server(){
         this.users = new ArrayList<>();
         this.books = new ArrayList<>();
+    }
+
+    public Server(List<User> users, List<Book> books){
+        this.users = new ArrayList<>(users);
+        this.books = new ArrayList<>(books);
     }
 
     public void addBook(Book book){

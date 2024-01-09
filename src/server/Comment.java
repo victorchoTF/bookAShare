@@ -14,6 +14,12 @@ public class Comment {
         this.postedAt = LocalDateTime.now(Clock.systemDefaultZone());
     }
 
+    public Comment(User user, String content, LocalDateTime postedAt){
+        this.setUser(user);
+        this.setContent(content);
+        this.postedAt = postedAt;
+    }
+
     public User getUser() {
         return this.user;
     }
