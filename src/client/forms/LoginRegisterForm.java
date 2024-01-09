@@ -1,6 +1,9 @@
 package client.forms;
 
+import client.MainPage;
+import client.albumCoponents.CreateABook;
 import server.User;
+import server.Server;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -16,7 +19,7 @@ public class LoginRegisterForm extends JFrame {
     private JPasswordField loginPasswordField, registerPasswordField;
     private JButton loginButton, registerButton;
 
-    public LoginRegisterForm() {
+    public LoginRegisterForm(Server server) {
         super("bookAShare Login/Register");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -24,8 +27,8 @@ public class LoginRegisterForm extends JFrame {
 
         tabbedPane = new JTabbedPane();
 
-        loginPanel();
-        registerPanel();
+        loginPanel(server);
+        registerPanel(server);
 
         tabbedPane.addTab("Login", loginPanel);
         tabbedPane.addTab("Register", registerPanel);
@@ -35,7 +38,7 @@ public class LoginRegisterForm extends JFrame {
         setVisible(true);
     }
 
-    private void loginPanel() {
+    private void loginPanel(Server server) {
         loginPanel = new JPanel();
         loginPanel.setLayout(new BoxLayout(loginPanel, BoxLayout.Y_AXIS));
 
@@ -46,8 +49,23 @@ public class LoginRegisterForm extends JFrame {
         loginButton = createSubmitButton("Login", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Handle login button click
-                // You can add logic to authenticate the user here
+                String email = loginEmailField.getText();
+                String password = new String(loginPasswordField.getPassword());
+
+                for (User user: server.getUsers())
+                    if (user.getEmail().equals(email) && user.getPassword().equals(password)){
+                        server.setLoggedInUser(user);
+
+                        if (user.getClass().getName().equals("server.Admin"))
+                            new CreateABook(server);
+                        else
+                            new MainPage(server);
+
+                        LoginRegisterForm.this.dispose();
+
+                        loginEmailField.setText("");
+                        loginPasswordField.setText("");
+                    }
             }
         });
 
@@ -57,7 +75,7 @@ public class LoginRegisterForm extends JFrame {
         loginPanel.add(createSubmitPanel(loginButton));
     }
 
-    private void registerPanel() {
+    private void registerPanel(Server server) {
         registerPanel = new JPanel();
         registerPanel.setLayout(new BoxLayout(registerPanel, BoxLayout.Y_AXIS));
 
@@ -69,14 +87,18 @@ public class LoginRegisterForm extends JFrame {
         registerButton = createSubmitButton("Register", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Handle register button click
-                // You can create a new User instance with the provided data
                 String username = registerUsernameField.getText();
                 String email = registerEmailField.getText();
                 String password = new String(registerPasswordField.getPassword());
 
-                User newUser = new User(username, email, password);
-                // You can add further logic to save the user information
+                for (User user : server.getUsers())
+                    if (user.getEmail().equals(email))
+                        return;
+
+                server.addUser(new User(username, email, password));
+                registerUsernameField.setText("");
+                registerEmailField.setText("");
+                registerPasswordField.setText("");
             }
         });
 

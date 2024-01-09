@@ -1,6 +1,7 @@
 package client.albumCoponents;
 
 import server.Book;
+import server.Server;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +14,7 @@ public class CreateABook extends JFrame {
     private JPanel bookCreationPanel;
     private JTextField bookTitleField, bookCoverField, bookAuthorField, bookDescriptionField;
 
-    public CreateABook() {
+    public CreateABook(Server server) {
         super("Create a Book");
         setSize(500, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -22,14 +23,14 @@ public class CreateABook extends JFrame {
         bookCreationPanel = new JPanel();
         bookCreationPanel.setLayout(new BoxLayout(bookCreationPanel, BoxLayout.Y_AXIS));
 
-        createBookCreationTab();
+        createBookCreationTab(server);
 
         add(bookCreationPanel);
         pack();
         setVisible(true);
     }
 
-    private void createBookCreationTab() {
+    private void createBookCreationTab(Server server) {
         // Create components for the Book Creation tab
         JLabel title = new JLabel("Share a book to bookAShare");
         title.setFont(new Font("Arial", Font.BOLD, 16));
@@ -65,7 +66,7 @@ public class CreateABook extends JFrame {
         JButton submitButton = createSubmitButton("Submit Book", new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                createBook();
+                createBook(server);
             }
         });
 
@@ -83,14 +84,22 @@ public class CreateABook extends JFrame {
         }
     }
 
-    private void createBook() {
+    private void createBook(Server server) {
         String title = bookTitleField.getText();
         String cover = bookCoverField.getText();
         String author = bookAuthorField.getText();
         String description = bookDescriptionField.getText();
 
-        Book newBook = new Book(title, cover, author, description);
-        // You can add further logic to save the book information or perform other actions
+        for (Book book: server.getBooks())
+            if (book.getTitle().equals(title) && book.getAuthor().equals(author))
+                return;
+
+        server.addBook(new Book(title, cover, author, description));
+
+        bookTitleField.setText("");
+        bookCoverField.setText("");
+        bookAuthorField.setText("");
+        bookDescriptionField.setText("");
     }
 
     private <C extends  Component> JPanel createFieldPanel(JLabel label, C component) {
