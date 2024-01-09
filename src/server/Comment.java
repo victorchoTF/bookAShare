@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 public class Comment {
     private User user;
+    private String username;
     private String content;
     private final LocalDateTime postedAt;
 
@@ -12,10 +13,11 @@ public class Comment {
         this.setUser(user);
         this.setContent(content);
         this.postedAt = LocalDateTime.now(Clock.systemDefaultZone());
+        this.setUsername(user.getUsername());
     }
 
-    public Comment(User user, String content, LocalDateTime postedAt){
-        this.setUser(user);
+    public Comment(String username, String content, LocalDateTime postedAt){
+        this.setUsername(username);
         this.setContent(content);
         this.postedAt = postedAt;
     }
@@ -26,6 +28,14 @@ public class Comment {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getUsername() {
+        return this.username;
+    }
+
+    public void setUsername(String user) {
+        this.username = user;
     }
 
     public String getContent(){

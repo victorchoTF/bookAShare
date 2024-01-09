@@ -1,23 +1,20 @@
 package client.forms;
 
 import client.MainPage;
-import client.albumCoponents.CreateABook;
+import client.CreateABook;
 import server.User;
 import server.Server;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class LoginRegisterForm extends JFrame {
 
-    private JTabbedPane tabbedPane;
     private JPanel loginPanel, registerPanel;
     private JTextField loginEmailField, registerUsernameField, registerEmailField;
     private JPasswordField loginPasswordField, registerPasswordField;
-    private JButton loginButton, registerButton;
 
     public LoginRegisterForm(Server server) {
         super("bookAShare Login/Register");
@@ -25,7 +22,7 @@ public class LoginRegisterForm extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 
-        tabbedPane = new JTabbedPane();
+        JTabbedPane tabbedPane = new JTabbedPane();
 
         loginPanel(server);
         registerPanel(server);
@@ -46,27 +43,24 @@ public class LoginRegisterForm extends JFrame {
         loginTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
         loginEmailField = new JTextField(20);
         loginPasswordField = new JPasswordField(20);
-        loginButton = createSubmitButton("Login", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String email = loginEmailField.getText();
-                String password = new String(loginPasswordField.getPassword());
+        JButton loginButton = createSubmitButton("Login", e -> {
+            String email = loginEmailField.getText();
+            String password = new String(loginPasswordField.getPassword());
 
-                for (User user: server.getUsers())
-                    if (user.getEmail().equals(email) && user.getPassword().equals(password)){
-                        server.setLoggedInUser(user);
+            for (User user : server.getUsers())
+                if (user.getEmail().equals(email) && user.getPassword().equals(password)) {
+                    server.setLoggedInUser(user);
 
-                        if (user.getClass().getName().equals("server.Admin"))
-                            new CreateABook(server);
-                        else
-                            new MainPage(server);
+                    if (user.getClass().getName().equals("server.Admin"))
+                        new CreateABook(server);
+                    else
+                        new MainPage(server);
 
-                        LoginRegisterForm.this.dispose();
+                    LoginRegisterForm.this.dispose();
 
-                        loginEmailField.setText("");
-                        loginPasswordField.setText("");
-                    }
-            }
+                    loginEmailField.setText("");
+                    loginPasswordField.setText("");
+                }
         });
 
         loginPanel.add(createPaddedPanel(loginTitle));
@@ -84,22 +78,19 @@ public class LoginRegisterForm extends JFrame {
         registerUsernameField = new JTextField(20);
         registerEmailField = new JTextField(20);
         registerPasswordField = new JPasswordField(20);
-        registerButton = createSubmitButton("Register", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String username = registerUsernameField.getText();
-                String email = registerEmailField.getText();
-                String password = new String(registerPasswordField.getPassword());
+        JButton registerButton = createSubmitButton("Register", e -> {
+            String username = registerUsernameField.getText();
+            String email = registerEmailField.getText();
+            String password = new String(registerPasswordField.getPassword());
 
-                for (User user : server.getUsers())
-                    if (user.getEmail().equals(email))
-                        return;
+            for (User user : server.getUsers())
+                if (user.getEmail().equals(email))
+                    return;
 
-                server.addUser(new User(username, email, password));
-                registerUsernameField.setText("");
-                registerEmailField.setText("");
-                registerPasswordField.setText("");
-            }
+            server.addUser(new User(username, email, password));
+            registerUsernameField.setText("");
+            registerEmailField.setText("");
+            registerPasswordField.setText("");
         });
 
         registerPanel.add(createPaddedPanel(registerTitle));

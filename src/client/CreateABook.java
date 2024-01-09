@@ -1,17 +1,18 @@
-package client.albumCoponents;
+package client;
 
 import server.Book;
 import server.Server;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.Arrays;
 
 public class CreateABook extends JFrame {
 
-    private JPanel bookCreationPanel;
+    private final JPanel bookCreationPanel;
     private JTextField bookTitleField, bookCoverField, bookAuthorField, bookDescriptionField;
 
     public CreateABook(Server server) {
@@ -31,7 +32,6 @@ public class CreateABook extends JFrame {
     }
 
     private void createBookCreationTab(Server server) {
-        // Create components for the Book Creation tab
         JLabel title = new JLabel("Share a book to bookAShare");
         title.setFont(new Font("Arial", Font.BOLD, 16));
 
@@ -42,12 +42,7 @@ public class CreateABook extends JFrame {
         bookCoverField = new JTextField(20);
 
         JButton browseButton = new JButton("Browse");
-        browseButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                selectFile();
-            }
-        });
+        browseButton.addActionListener(e -> selectFile());
 
         JLabel authorLabel = new JLabel("Author:");
         bookAuthorField = new JTextField(20);
@@ -55,33 +50,47 @@ public class CreateABook extends JFrame {
         JLabel descriptionLabel = new JLabel("Description:");
         bookDescriptionField = new JTextField(20);
 
-        // Add components to the Book Creation tab
         bookCreationPanel.add(createPaddedPanel(title));
         bookCreationPanel.add(createFieldPanel(titleLabel, bookTitleField));
         bookCreationPanel.add(createFieldPanel(coverLabel, browseButton));
         bookCreationPanel.add(createFieldPanel(authorLabel, bookAuthorField));
         bookCreationPanel.add(createFieldPanel(descriptionLabel, bookDescriptionField));
 
-        // Create Submit button for the Book Creation tab
-        JButton submitButton = createSubmitButton("Submit Book", new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                createBook(server);
-            }
-        });
+        JButton submitButton = createSubmitButton(e -> createBook(server));
 
-        // Create a panel for the Submit button with padding and center it
         JPanel submitPanel = createSubmitPanel(submitButton);
         bookCreationPanel.add(submitPanel);
     }
 
     private void selectFile() {
-        JFileChooser fileChooser = new JFileChooser();
+        JFileChooser fileChooser = new JFileChooser("/home/victorchotf/IdeaProjects/bookAShare/src/assets");
+
+        FileNameExtensionFilter imageFilter = new FileNameExtensionFilter("Image files", "jpg", "jpeg", "png", "gif");
+        fileChooser.setFileFilter(imageFilter);
+
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
-            bookCoverField.setText(selectedFile.getAbsolutePath());
+            String baseDirectory = "../assets";
+
+            if (isImageFile(selectedFile)) {
+                String relativePath = getRelativePath(baseDirectory,
+                        Arrays.stream(selectedFile.getAbsolutePath().split("/")).toList().getLast());
+                bookCoverField.setText(relativePath);
+            } else {
+                JOptionPane.showMessageDialog(this, "Please select a valid image file.", "Invalid File", JOptionPane.ERROR_MESSAGE);
+            }
         }
+    }
+
+
+    private boolean isImageFile(File file) {
+        String fileName = file.getName().toLowerCase();
+        return fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") || fileName.endsWith(".png") || fileName.endsWith(".gif");
+    }
+
+    private String getRelativePath(String baseDirectory, String absolutePath) {
+        return baseDirectory + "/" + absolutePath;
     }
 
     private void createBook(Server server) {
@@ -110,8 +119,8 @@ public class CreateABook extends JFrame {
         return panel;
     }
 
-    private JButton createSubmitButton(String buttonText, ActionListener actionListener) {
-        JButton submitButton = new JButton(buttonText);
+    private JButton createSubmitButton(ActionListener actionListener) {
+        JButton submitButton = new JButton("Submit Book");
         submitButton.addActionListener(actionListener);
         return submitButton;
     }
