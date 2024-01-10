@@ -10,7 +10,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 
 public class MainPage extends JFrame {
 
@@ -27,11 +26,13 @@ public class MainPage extends JFrame {
 
         add(scrollPane, BorderLayout.CENTER);
 
-        ArrayList<BookPanel> bookPanels = new ArrayList<>();
         for (Book book : server.getBooks()) {
-            BookPanel bookPanel = new BookPanel(book, server.getLoggedInUser());
-            booksPanel.add(bookPanel);
-            bookPanels.add(bookPanel);
+            try {
+                BookPanel bookPanel = new BookPanel(book, server.getLoggedInUser());
+                booksPanel.add(bookPanel);
+            } catch (Exception e){
+                JOptionPane.showMessageDialog(null, book.getCover() + " not found!", "Invalid Path", JOptionPane.ERROR_MESSAGE);
+            }
         }
 
         setLocationRelativeTo(null);
@@ -40,24 +41,18 @@ public class MainPage extends JFrame {
     }
 
     public static class BookPanel extends JPanel {
-        public BookPanel(Book book, User user) {
+        public BookPanel(Book book, User user) throws Exception {
             setLayout(new BorderLayout());
             setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
             setPreferredSize(new Dimension(80, 120));
 
-            try {
-                URL imageURL = MainPage.class.getResource(book.getCover());
-                if (imageURL != null) {
-                    ImageIcon imageIcon = new ImageIcon(resizeImage(imageURL, 70, 100));
-                    JLabel imageLabel = new JLabel(imageIcon);
+            URL imageURL = MainPage.class.getResource(book.getCover());
+            if (imageURL != null) {
+                ImageIcon imageIcon = new ImageIcon(resizeImage(imageURL, 70, 100));
+                JLabel imageLabel = new JLabel(imageIcon);
 
-                    add(imageLabel, BorderLayout.CENTER);
-                } else {
-                    System.err.println("Image not found: " + book.getCover());
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                add(imageLabel, BorderLayout.CENTER);
+            } else throw new Exception();
 
             JLabel detailsLabel = new JLabel("<html>Written by " + book.getAuthor() + "</html>");
             detailsLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
@@ -81,7 +76,6 @@ public class MainPage extends JFrame {
     }
 
     public static class BookDetailsDialog extends JDialog {
-        private final ArrayList<JPanel> commentPanels;
         private final JPanel commentsPane;
 
         public BookDetailsDialog(Book book, User user) {
@@ -143,10 +137,8 @@ public class MainPage extends JFrame {
             commentsPane.setLayout(new BoxLayout(commentsPane, BoxLayout.Y_AXIS));
 
             Comment[] comments = book.getComments();
-            commentPanels = new ArrayList<>();
             for (Comment comment : comments) {
                 JPanel commentPanel = createCommentPanel(comment);
-                commentPanels.add(commentPanel);
                 commentsPane.add(commentPanel);
             }
 
@@ -210,7 +202,6 @@ public class MainPage extends JFrame {
             Comment[] comments = book.getComments();
             for (Comment comment : comments) {
                 JPanel commentPanel = createCommentPanel(comment);
-                commentPanels.add(commentPanel);
                 commentsPane.add(commentPanel);
             }
 

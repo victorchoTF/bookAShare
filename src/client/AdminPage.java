@@ -11,6 +11,7 @@ import java.util.Arrays;
 import server.Admin;
 import server.Book;
 import server.Server;
+import server.User;
 
 public class AdminPage extends JFrame {
 
@@ -23,6 +24,7 @@ public class AdminPage extends JFrame {
         setSize(450, 350);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
+        setLocationRelativeTo(null);
 
         tabbedPane = new JTabbedPane();
         createRegisterTab();
@@ -64,7 +66,7 @@ public class AdminPage extends JFrame {
         JPanel registerPanel = new JPanel();
         registerPanel.setLayout(new BoxLayout(registerPanel, BoxLayout.Y_AXIS));
 
-        JLabel registerTitle = new JLabel("Create a new Admin");
+        JLabel registerTitle = new JLabel("Create a new Admin for bookAShare");
         registerTitle.setFont(new Font("Arial", Font.BOLD, 16));
         registerTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -87,7 +89,7 @@ public class AdminPage extends JFrame {
         JPanel editBookPanel = new JPanel();
         editBookPanel.setLayout(new BoxLayout(editBookPanel, BoxLayout.Y_AXIS));
 
-        JLabel editBookTitle = new JLabel("Edit Book");
+        JLabel editBookTitle = new JLabel("Edit a Book from bookAShare");
         makeTitleBold(editBookPanel, editBookTitle);
 
         tabbedPane.insertTab("Edit Book", null, editBookPanel, null, 2);
@@ -101,8 +103,12 @@ public class AdminPage extends JFrame {
         booksPanel.setLayout(new GridLayout(0, 2, 10, 10));
 
         for (Book existingBook : server.getBooks()) {
-            JPanel bookPanel = createBookPanel(existingBook);
-            booksPanel.add(bookPanel);
+            try {
+                JPanel bookPanel = createBookPanel(existingBook);
+                booksPanel.add(bookPanel);
+            } catch (Exception e){
+                JOptionPane.showMessageDialog(null, existingBook.getCover() + " not found!", "Invalid Path", JOptionPane.ERROR_MESSAGE);
+            }
         }
 
         JScrollPane scrollPane = new JScrollPane(booksPanel);
@@ -129,10 +135,22 @@ public class AdminPage extends JFrame {
         editPanel.add(createFieldPanel("Description:", bookDescriptionField));
 
         int option = JOptionPane.showConfirmDialog(this, editPanel, "Edit Book", JOptionPane.OK_CANCEL_OPTION);
+        String title = bookTitleField.getText();
+        String author = bookAuthorField.getText();
         if (option == JOptionPane.OK_OPTION) {
-            book.setTitle(bookTitleField.getText());
+            for (Book currentBook : server.getBooks())
+                if (currentBook.getTitle().equals(title) && currentBook.getAuthor().equals(author)){
+                    JOptionPane.showMessageDialog(null,
+                            "A book titled "+ title +" has already been written by " + author +"!",
+                            "Invalid Book Data", JOptionPane.ERROR_MESSAGE);
+
+                    editBook(book);
+                    return;
+                }
+
+            book.setTitle(title);
             book.setCover(bookCoverField.getText());
-            book.setAuthor(bookAuthorField.getText());
+            book.setAuthor(author);
             book.setDescription(bookDescriptionField.getText());
 
             updateBookTab(2);
@@ -144,31 +162,25 @@ public class AdminPage extends JFrame {
         JPanel deleteBookPanel = new JPanel();
         deleteBookPanel.setLayout(new BoxLayout(deleteBookPanel, BoxLayout.Y_AXIS));
 
-        JLabel deleteBookTitle = new JLabel("Delete a Book");
+        JLabel deleteBookTitle = new JLabel("Delete a Book from bookAShare");
         makeTitleBold(deleteBookPanel, deleteBookTitle);
 
         tabbedPane.addTab("Delete Book", deleteBookPanel);
     }
 
-    private JPanel createBookPanel(Book book) {
+    private JPanel createBookPanel(Book book) throws Exception {
         JPanel bookPanel = new JPanel();
         bookPanel.setLayout(new BorderLayout());
         bookPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
         bookPanel.setPreferredSize(new Dimension(80, 120));
 
-        try {
-            URL imageURL = MainPage.class.getResource(book.getCover());
-            if (imageURL != null) {
-                ImageIcon imageIcon = new ImageIcon(resizeImage(imageURL, 70, 100));
-                JLabel imageLabel = new JLabel(imageIcon);
+        URL imageURL = MainPage.class.getResource(book.getCover());
+        if (imageURL != null) {
+            ImageIcon imageIcon = new ImageIcon(resizeImage(imageURL, 70, 100));
+            JLabel imageLabel = new JLabel(imageIcon);
 
-                bookPanel.add(imageLabel, BorderLayout.CENTER);
-            } else {
-                System.err.println("Image not found: " + book.getCover());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            bookPanel.add(imageLabel, BorderLayout.CENTER);
+        } else throw new Exception();
 
         JLabel detailsLabel = new JLabel("<html>Written by " + book.getAuthor() + "</html>");
         detailsLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
@@ -205,8 +217,12 @@ public class AdminPage extends JFrame {
         String description = descriptionField.getText();
 
         for (Book book : server.getBooks())
-            if (book.getTitle().equals(title) && book.getAuthor().equals(author))
+            if (book.getTitle().equals(title) && book.getAuthor().equals(author)){
+                JOptionPane.showMessageDialog(null,
+                        "A book titled "+ title +" has already been written by " + author +"!",
+                        "Invalid Book Data", JOptionPane.ERROR_MESSAGE);
                 return;
+            }
 
         server.addBook(new Book(title, cover, author, description));
 
@@ -214,11 +230,20 @@ public class AdminPage extends JFrame {
         coverField.setText("");
         authorField.setText("");
         descriptionField.setText("");
+
+        updateBookTab(2);
+        updateBookTab(3);
     }
 
     private void registerUser(JTextField usernameField, JPasswordField passwordField) {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
+
+        for (User user : server.getUsers())
+            if (user.getUsername().equals(username)) {
+                JOptionPane.showMessageDialog(null, username + " already has an admin account!", "Invalid Username", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
         server.addUser(new Admin(username, password));
         usernameField.setText("");
@@ -313,15 +338,19 @@ public class AdminPage extends JFrame {
             booksPanel.setLayout(new GridLayout(0, 2, 10, 10));
 
             for (Book book : server.getBooks()) {
-                JPanel bookPanel = createBookPanel(book);
-                booksPanel.add(bookPanel);
+                try {
+                    JPanel bookPanel = createBookPanel(book);
+                    booksPanel.add(bookPanel);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, book.getCover() + " not found!", "Invalid Path", JOptionPane.ERROR_MESSAGE);
+                }
             }
 
             Component[] components = ((JPanel) tabbedPane.getComponentAt(tabIdx)).getComponents();
             for (Component component : components) {
                 if (component instanceof JScrollPane scrollPane) {
                     scrollPane.setViewportView(booksPanel);
-                    break;
+                    return;
                 }
             }
         });

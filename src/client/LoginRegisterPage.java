@@ -19,6 +19,7 @@ public class LoginRegisterPage extends JFrame {
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
+        setLocationRelativeTo(null);
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
@@ -45,7 +46,7 @@ public class LoginRegisterPage extends JFrame {
             String email = loginEmailField.getText();
             String password = new String(loginPasswordField.getPassword());
 
-            for (User user : server.getUsers())
+            for (User user : server.getUsers()) {
                 if (user.getEmail().equals(email) && user.getPassword().equals(password)) {
                     server.setLoggedInUser(user);
 
@@ -54,11 +55,18 @@ public class LoginRegisterPage extends JFrame {
                     else
                         new MainPage(server);
 
-                    LoginRegisterPage.this.dispose();
-
                     loginEmailField.setText("");
                     loginPasswordField.setText("");
+
+                    LoginRegisterPage.this.dispose();
+
+                    return;
+                } else if (user.getEmail().equals(email)) {
+                    JOptionPane.showMessageDialog(null, "Password not valid!", "Invalid Password", JOptionPane.ERROR_MESSAGE);
                 }
+            }
+
+            JOptionPane.showMessageDialog(null, email + " is not registered!", "Invalid Email", JOptionPane.ERROR_MESSAGE);
         });
 
         loginPanel.add(createPaddedPanel(loginTitle));
@@ -82,8 +90,10 @@ public class LoginRegisterPage extends JFrame {
             String password = new String(registerPasswordField.getPassword());
 
             for (User user : server.getUsers())
-                if (user.getEmail().equals(email))
+                if (user.getEmail().equals(email)) {
+                    JOptionPane.showMessageDialog(null, email + " already has an account!", "Invalid Email", JOptionPane.ERROR_MESSAGE);
                     return;
+                }
 
             server.addUser(new User(username, email, password));
             registerUsernameField.setText("");
