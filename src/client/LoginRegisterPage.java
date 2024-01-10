@@ -1,7 +1,5 @@
-package client.forms;
+package client;
 
-import client.MainPage;
-import client.CreateABook;
 import server.User;
 import server.Server;
 
@@ -10,13 +8,13 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
-public class LoginRegisterForm extends JFrame {
+public class LoginRegisterPage extends JFrame {
 
     private JPanel loginPanel, registerPanel;
     private JTextField loginEmailField, registerUsernameField, registerEmailField;
     private JPasswordField loginPasswordField, registerPasswordField;
 
-    public LoginRegisterForm(Server server) {
+    public LoginRegisterPage(Server server) {
         super("bookAShare Login/Register");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -52,11 +50,11 @@ public class LoginRegisterForm extends JFrame {
                     server.setLoggedInUser(user);
 
                     if (user.getClass().getName().equals("server.Admin"))
-                        new CreateABook(server);
+                        new AdminPage(server);
                     else
                         new MainPage(server);
 
-                    LoginRegisterForm.this.dispose();
+                    LoginRegisterPage.this.dispose();
 
                     loginEmailField.setText("");
                     loginPasswordField.setText("");

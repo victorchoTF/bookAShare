@@ -26,8 +26,8 @@ public class Server {
         return this.books.get(idx);
     }
 
-    public void removeBook(int idx){
-        this.books.remove(idx);
+    public void removeBook(Book book){
+        this.books.remove(book);
     }
 
     public Book[] getBooks(){
