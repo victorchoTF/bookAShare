@@ -52,7 +52,6 @@ public class ORMManager {
                 else if (line.startsWith("Comments:")) {
                     for (String comment : line.replace("Comments:", "").split("@!@")) {
                         String[] commentParts = comment.split("<!>");
-                        System.out.println(comment);
 
                         if (commentParts.length != 3){
                             continue;}
