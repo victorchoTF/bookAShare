@@ -3,11 +3,8 @@ import server.*;
 
 import java.util.Arrays;
 
-// TODO:
-//  1) Forms feedback (Use JOptionPane)
-
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception{
         Server server = new Server(ORMManager.loadUsers(), ORMManager.loadBooks());
 
         new LoginRegisterPage(server);

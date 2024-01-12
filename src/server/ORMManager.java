@@ -1,5 +1,6 @@
 package server;
 
+import javax.swing.*;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -18,28 +19,35 @@ public class ORMManager {
                 String[] metaData = line.split(":");
                 String[] parts = metaData[1].split(",");
                 if (parts.length == 3) {
-                    users.add( (metaData[0].equals("User")) ?
-                            new User(parts[0], parts[1], parts[2]) :
-                            new Admin(parts[0], parts[2])
-                    );
+                    try {
+                        users.add((metaData[0].equals("User")) ?
+                                new User(parts[0], parts[1], parts[2]) :
+                                new Admin(parts[0], parts[2])
+                        );
+                    } catch (Exception error){
+                        JOptionPane.showMessageDialog(null, error.getMessage(), "Invalid User Data", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Invalid User Data", JOptionPane.ERROR_MESSAGE);
         }
         return users;
     }
 
-    public static List<Book> loadBooks() {
+    public static List<Book> loadBooks() throws Exception{
         List<Book> books = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(BOOK_FILE))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith("Book:")) {
                     String[] parts = line.replace("Book:", "").split(",");
-                    Book book = new Book(parts[0], parts[1], parts[2], parts[3]);
-
-                    books.add(book);
+                    try{
+                        Book book = new Book(parts[0], parts[1], parts[2], parts[3]);
+                        books.add(book);
+                    } catch (Exception e){
+                        JOptionPane.showMessageDialog(null, e.getMessage(), "Invalid Book Data", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
                 else if (line.startsWith("Comments:")) {
                     for (String comment : line.replace("Comments:", "").replace("!", "").split("!")) {
@@ -55,7 +63,7 @@ public class ORMManager {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, e.getMessage());
         }
         return books;
     }
@@ -68,7 +76,7 @@ public class ORMManager {
                 writer.newLine();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Invalid User Data", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -92,7 +100,7 @@ public class ORMManager {
                 writer.newLine();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, e.getMessage());
         }
     }
 }

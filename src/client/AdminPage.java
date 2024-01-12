@@ -148,11 +148,17 @@ public class AdminPage extends JFrame {
                     return;
                 }
 
-            book.setTitle(title);
-            book.setCover(bookCoverField.getText());
-            book.setAuthor(author);
-            book.setDescription(bookDescriptionField.getText());
+            try {
+                book.setTitle(title);
+                book.setCover(bookCoverField.getText());
+                book.setAuthor(author);
+                book.setDescription(bookDescriptionField.getText());
+            } catch (Exception e){
+                JOptionPane.showMessageDialog(null, e.getMessage(), "Invalid Book Data", JOptionPane.ERROR_MESSAGE);
 
+                editBook(book);
+                return;
+            }
             updateBookTab(2);
             updateBookTab(3);
         }
@@ -224,7 +230,11 @@ public class AdminPage extends JFrame {
                 return;
             }
 
-        server.addBook(new Book(title, cover, author, description));
+        try {
+            server.addBook(new Book(title, cover, author, description));
+        } catch (Exception e){
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Invalid Book Data", JOptionPane.ERROR_MESSAGE);
+        }
 
         titleField.setText("");
         coverField.setText("");
@@ -245,7 +255,12 @@ public class AdminPage extends JFrame {
                 return;
             }
 
-        server.addUser(new Admin(username, password));
+        try {
+            server.addUser(new Admin(username, password));
+        } catch (Exception e){
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Invalid Admin Data", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         usernameField.setText("");
         passwordField.setText("");
     }

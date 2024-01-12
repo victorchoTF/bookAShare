@@ -58,7 +58,7 @@ public class LoginRegisterPage extends JFrame {
                     loginEmailField.setText("");
                     loginPasswordField.setText("");
 
-                    LoginRegisterPage.this.dispose();
+                    dispose();
 
                     return;
                 } else if (user.getEmail().equals(email)) {
@@ -95,7 +95,12 @@ public class LoginRegisterPage extends JFrame {
                     return;
                 }
 
-            server.addUser(new User(username, email, password));
+            try {
+                server.addUser(new User(username, email, password));
+            } catch (Exception error){
+                JOptionPane.showMessageDialog(null, error.getMessage(), "Invalid User Data", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             registerUsernameField.setText("");
             registerEmailField.setText("");
             registerPasswordField.setText("");
