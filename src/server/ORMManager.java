@@ -17,7 +17,7 @@ public class ORMManager {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] metaData = line.split(":");
-                String[] parts = metaData[1].split(",");
+                String[] parts = metaData[1].split("<!>");
                 if (parts.length == 3) {
                     try {
                         users.add((metaData[0].equals("User")) ?
@@ -35,13 +35,13 @@ public class ORMManager {
         return users;
     }
 
-    public static List<Book> loadBooks() throws Exception{
+    public static List<Book> loadBooks(){
         List<Book> books = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(BOOK_FILE))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith("Book:")) {
-                    String[] parts = line.replace("Book:", "").split(",");
+                    String[] parts = line.replace("Book:", "").split("<!>");
                     try{
                         Book book = new Book(parts[0], parts[1], parts[2], parts[3]);
                         books.add(book);
@@ -50,11 +50,12 @@ public class ORMManager {
                     }
                 }
                 else if (line.startsWith("Comments:")) {
-                    for (String comment : line.replace("Comments:", "").replace("!", "").split("!")) {
-                        String[] commentParts = comment.split(",");
+                    for (String comment : line.replace("Comments:", "").split("@!@")) {
+                        String[] commentParts = comment.split("<!>");
+                        System.out.println(comment);
 
-                        if (commentParts.length != 3)
-                            continue;
+                        if (commentParts.length != 3){
+                            continue;}
 
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -72,7 +73,7 @@ public class ORMManager {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(USER_FILE))) {
             for (User user : users) {
                 writer.write(user.getClass().getName().replace("server.", "")
-                        + ":" + user.getUsername() + "," + user.getEmail() + "," + user.getPassword());
+                        + ":" + user.getUsername() + "<!>" + user.getEmail() + "<!>" + user.getPassword());
                 writer.newLine();
             }
         } catch (IOException e) {
@@ -83,8 +84,8 @@ public class ORMManager {
     public static void saveBooks(List<Book> books) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(BOOK_FILE))) {
             for (Book book : books) {
-                writer.write("Book:"+book.getTitle() + "," + book.getCover() + "," +
-                        book.getAuthor() + "," + book.getDescription());
+                writer.write("Book:"+book.getTitle() + "<!>" + book.getCover() + "<!>" +
+                        book.getAuthor() + "<!>" + book.getDescription());
 
                 Comment[] comments = book.getComments();
                 if (comments.length > 0) {
@@ -92,8 +93,8 @@ public class ORMManager {
                     for (Comment comment : comments) {
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                         writer.write(comment.getUsername() +
-                                "," + comment.getContent() +
-                                "," + comment.getPostedAt().format(formatter) + "!");
+                                "<!>" + comment.getContent() +
+                                "<!>" + comment.getPostedAt().format(formatter) + "@!@");
                     }
                 }
 

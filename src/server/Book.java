@@ -21,7 +21,7 @@ public class Book {
     }
 
     public void setTitle(String title) throws MinLengthException, MaxLengthException {
-        final int minLength = 5;
+        final int minLength = 2;
         final int maxLength = 100;
         final int titleLength = title.length();
 

@@ -234,6 +234,7 @@ public class AdminPage extends JFrame {
             server.addBook(new Book(title, cover, author, description));
         } catch (Exception e){
             JOptionPane.showMessageDialog(null, e.getMessage(), "Invalid Book Data", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         titleField.setText("");
